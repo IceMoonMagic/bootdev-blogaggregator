@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,22 +50,13 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 	return i, err
 }
 
-const deleteFeeds = `-- name: DeleteFeeds :exec
-DELETE FROM feeds
-`
-
-func (q *Queries) DeleteFeeds(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deleteFeeds)
-	return err
-}
-
-const getFeed = `-- name: GetFeed :one
+const debugGetFeed = `-- name: DebugGetFeed :one
 SELECT id, created_at, updated_at, name, url, user_id FROM feeds
 WHERE name = $1
 `
 
-func (q *Queries) GetFeed(ctx context.Context, name string) (Feed, error) {
-	row := q.db.QueryRowContext(ctx, getFeed, name)
+func (q *Queries) DebugGetFeed(ctx context.Context, name string) (Feed, error) {
+	row := q.db.QueryRowContext(ctx, debugGetFeed, name)
 	var i Feed
 	err := row.Scan(
 		&i.ID,
@@ -77,12 +69,12 @@ func (q *Queries) GetFeed(ctx context.Context, name string) (Feed, error) {
 	return i, err
 }
 
-const getFeeds = `-- name: GetFeeds :many
+const debugGetFeeds = `-- name: DebugGetFeeds :many
 SELECT id, created_at, updated_at, name, url, user_id FROM feeds
 `
 
-func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {
-	rows, err := q.db.QueryContext(ctx, getFeeds)
+func (q *Queries) DebugGetFeeds(ctx context.Context) ([]Feed, error) {
+	rows, err := q.db.QueryContext(ctx, debugGetFeeds)
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +90,51 @@ func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {
 			&i.Url,
 			&i.UserID,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const deleteFeeds = `-- name: DeleteFeeds :exec
+DELETE FROM feeds
+`
+
+func (q *Queries) DeleteFeeds(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteFeeds)
+	return err
+}
+
+const getFeeds = `-- name: GetFeeds :many
+SELECT feeds.name, feeds.url, users.name as user
+FROM feeds
+LEFT JOIN users
+ON feeds.user_id = users.id
+`
+
+type GetFeedsRow struct {
+	Name string
+	Url  string
+	User sql.NullString
+}
+
+func (q *Queries) GetFeeds(ctx context.Context) ([]GetFeedsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFeeds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFeedsRow
+	for rows.Next() {
+		var i GetFeedsRow
+		if err := rows.Scan(&i.Name, &i.Url, &i.User); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

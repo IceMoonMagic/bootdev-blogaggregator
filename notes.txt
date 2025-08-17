@@ -5,3 +5,6 @@
 - (2.1) I'm not running Postgres as a service (for this kinda thing) (initdb -D ./postgres-conf + postgres -D ./postgres-conf &)
 - (2.3) time.Now not mentioned nor in spellbook?
 
+SQL Defaults
+SQL trigger update updated_at?
+

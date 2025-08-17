@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/icemoonmagic/bootdev-blogaggregator/internal/database"
 	"github.com/icemoonmagic/bootdev-blogaggregator/internal/rss"
 )
@@ -24,23 +22,15 @@ func handlerAddFeed(state *state, cmd command) error {
 		return err
 	}
 
-	user, err := state.db.GetUser(context.Background(), state.cfg.CurrentUserName)
-	if err != nil {
-		return err
-	}
-
 	name := cmd.args[0]
 	url := cmd.args[1]
 
 	feed, err := state.db.CreateFeed(
 		context.Background(),
 		database.CreateFeedParams{
-			ID:        uuid.New(),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-			Name:      name,
-			Url:       url,
-			UserID:    user.ID,
+			Name:     name,
+			Url:      url,
+			UserName: state.cfg.CurrentUserName,
 		},
 	)
 

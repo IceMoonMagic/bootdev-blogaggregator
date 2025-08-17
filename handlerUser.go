@@ -3,10 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
-
-	"github.com/google/uuid"
-	"github.com/icemoonmagic/bootdev-blogaggregator/internal/database"
 )
 
 func handlerRegister(s *state, cmd command) error {
@@ -14,12 +10,12 @@ func handlerRegister(s *state, cmd command) error {
 		return err
 	}
 
-	user, err := s.db.CreateUser(context.Background(), database.CreateUserParams{
-		ID:        uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Name:      cmd.args[0],
-	})
+	name := cmd.args[0]
+
+	user, err := s.db.CreateUser(
+		context.Background(),
+		name,
+	)
 	if err != nil {
 		return err
 	}
@@ -35,7 +31,10 @@ func handlerLogin(s *state, cmd command) error {
 		return err
 	}
 
-	user, err := s.db.GetUser(context.Background(), cmd.args[0])
+	user, err := s.db.GetUser(
+		context.Background(),
+		cmd.args[0],
+	)
 	if err != nil {
 		return err
 	}

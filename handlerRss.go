@@ -50,7 +50,15 @@ func handlerAddFeed(state *state, cmd command) error {
 
 	fmt.Println(feed)
 
-	return nil
+	return handlerFollow(
+		state,
+		command{
+			name: "following",
+			args: []string{
+				url,
+			},
+		},
+	)
 }
 
 func handlerFeeds(state *state, cmd command) error {

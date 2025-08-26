@@ -7,7 +7,7 @@ import (
 	"github.com/icemoonmagic/bootdev-blogaggregator/internal/database"
 )
 
-func handlerFollow(state *state, cmd command) error {
+func handlerFollow(state *state, cmd command, user database.User) error {
 	if err := checkCommandArgsCount(cmd, 1, 1); err != nil {
 		return nil
 	}
@@ -17,7 +17,7 @@ func handlerFollow(state *state, cmd command) error {
 	follow, err := state.db.CreateFeedFollow(
 		context.Background(),
 		database.CreateFeedFollowParams{
-			Name: state.cfg.CurrentUserName,
+			UserID: user.ID,
 			Url:  url,
 		},
 	)
@@ -30,10 +30,10 @@ func handlerFollow(state *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(state *state, cmd command) error {
+func handlerFollowing(state *state, cmd command, user database.User) error {
 	follows, err := state.db.GetFeedFollowsForUser(
 		context.Background(),
-		state.cfg.CurrentUserName,
+		user.ID,
 	)
 	if err != nil {
 		return err

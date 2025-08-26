@@ -17,7 +17,7 @@ func handlerAgg(state *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed(state *state, cmd command) error {
+func handlerAddFeed(state *state, cmd command, user database.User) error {
 	if err := checkCommandArgsCount(cmd, 2, 2); err != nil {
 		return err
 	}
@@ -28,9 +28,9 @@ func handlerAddFeed(state *state, cmd command) error {
 	feed, err := state.db.CreateFeed(
 		context.Background(),
 		database.CreateFeedParams{
-			Name:     name,
-			Url:      url,
-			UserName: state.cfg.CurrentUserName,
+			Name:   name,
+			Url:    url,
+			UserID: user.ID,
 		},
 	)
 
@@ -48,6 +48,7 @@ func handlerAddFeed(state *state, cmd command) error {
 				url,
 			},
 		},
+		user,
 	)
 }
 

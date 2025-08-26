@@ -17,10 +17,8 @@ WITH inserted AS (
     INSERT INTO feed_follows (
         user_id, feed_id
     ) VALUES (
+        $1,
         (
-            SELECT users.id FROM users
-            WHERE users.name = $1
-        ), (
             SELECT feeds.id FROM feeds
             WHERE feeds.url = $2
         )
@@ -39,8 +37,8 @@ INNER JOIN feeds
 `
 
 type CreateFeedFollowParams struct {
-	Name string
-	Url  string
+	UserID uuid.UUID
+	Url    string
 }
 
 type CreateFeedFollowRow struct {
@@ -54,7 +52,7 @@ type CreateFeedFollowRow struct {
 }
 
 func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) (CreateFeedFollowRow, error) {
-	row := q.db.QueryRowContext(ctx, createFeedFollow, arg.Name, arg.Url)
+	row := q.db.QueryRowContext(ctx, createFeedFollow, arg.UserID, arg.Url)
 	var i CreateFeedFollowRow
 	err := row.Scan(
 		&i.ID,
@@ -75,7 +73,7 @@ INNER JOIN users
     ON feed_follows.user_id = users.id
 INNER JOIN feeds
     ON feed_follows.feed_id = feeds.id
-WHERE users.name = $1
+WHERE users.id = $1
 `
 
 type GetFeedFollowsForUserRow struct {
@@ -84,8 +82,8 @@ type GetFeedFollowsForUserRow struct {
 	Url  string
 }
 
-func (q *Queries) GetFeedFollowsForUser(ctx context.Context, name string) ([]GetFeedFollowsForUserRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFeedFollowsForUser, name)
+func (q *Queries) GetFeedFollowsForUser(ctx context.Context, id uuid.UUID) ([]GetFeedFollowsForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFeedFollowsForUser, id)
 	if err != nil {
 		return nil, err
 	}

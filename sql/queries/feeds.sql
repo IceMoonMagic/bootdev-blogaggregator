@@ -1,7 +1,7 @@
 -- name: CreateFeed :one
 INSERT INTO
 feeds (name, url, user_id)
-VALUES ($1, $2, (SELECT users.id FROM users WHERE users.name = @user_name))
+VALUES ($1, $2, $3)
 RETURNING *
 ;
 

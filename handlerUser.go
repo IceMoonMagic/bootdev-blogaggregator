@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"github.com/icemoonmagic/bootdev-blogaggregator/internal/database"
 )
 
 func handlerRegister(s *state, cmd command) error {
@@ -64,4 +66,20 @@ func handlerGetUsers(s *state, cmd command) error {
 	}
 
 	return nil
+}
+
+func middlewareLoggedIn(
+	handler func(s *state, cmd command, user database.User) error,
+) func(*state, command) error {
+	wrapped := func(s *state, cmd command) error {
+		user, err := s.db.GetUser(
+			context.Background(),
+			s.cfg.CurrentUserName,
+		)
+		if err != nil {
+			return err
+		}
+		return handler(s, cmd, user)
+	}
+	return wrapped
 }

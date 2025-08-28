@@ -3,7 +3,6 @@ package rss
 import (
 	"context"
 	"encoding/xml"
-	"fmt"
 	"html"
 	"net/http"
 
@@ -63,8 +62,19 @@ func ScrapeFeeds(db *database.Queries) error {
 
 	db.MarkFeedFetched(context.Background(), next.ID)
 
-	for _, item := range feed.Channel.Item {
-		fmt.Println(item.Title)
+	for _, post := range feed.Channel.Item {
+		if err := db.CreatePost(
+			context.Background(),
+			database.CreatePostParams{
+				Title:       post.Title,
+				Url:         post.Link,
+				Description: post.Description,
+				PublishedAt: post.PubDate,
+				FeedID:      next.ID,
+			},
+		); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -4,6 +4,8 @@
 - (1.3) Manually making another command parser? It's basically the same as the Pokedex 1.4 (REPL).
 - (2.1) I'm not running Postgres as a service (for this kinda thing) (initdb -D ./postgres-conf + postgres -D ./postgres-conf &)
 - (2.3) time.Now not mentioned nor in spellbook?
+- (5.2) How to convert String to int? String to time (commented but not explained)?
+- (5.2) Why ignore the error instead of fixing it (e.g. INSERT ... ON CONFLICT DO NOTHING)?
 
 SQL Defaults
 SQL trigger update updated_at?

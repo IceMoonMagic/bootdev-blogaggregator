@@ -3,18 +3,30 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/icemoonmagic/bootdev-blogaggregator/internal/database"
 	"github.com/icemoonmagic/bootdev-blogaggregator/internal/rss"
 )
 
 func handlerAgg(state *state, cmd command) error {
-	feed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err := checkCommandArgsCount(cmd, 1, 1); err != nil {
+		return err
+	}
+
+	timeBetweenReqs, err := time.ParseDuration(cmd.args[0])
 	if err != nil {
 		return err
 	}
-	fmt.Println(feed)
-	return nil
+
+	fmt.Printf("Collecting feeds every %v\n", timeBetweenReqs)
+
+	ticker := time.NewTicker(timeBetweenReqs)
+	for ; ; <-ticker.C {
+		if err := rss.ScrapeFeeds(state.db); err != nil {
+			return err
+		}
+	}
 }
 
 func handlerAddFeed(state *state, cmd command, user database.User) error {

@@ -3,8 +3,11 @@ package rss
 import (
 	"context"
 	"encoding/xml"
+	"fmt"
 	"html"
 	"net/http"
+
+	"github.com/icemoonmagic/bootdev-blogaggregator/internal/database"
 )
 
 type RSSFeed struct {
@@ -45,4 +48,24 @@ func FetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	feed.Channel.Description = html.UnescapeString(feed.Channel.Description)
 
 	return &feed, nil
+}
+
+func ScrapeFeeds(db *database.Queries) error {
+	next, err := db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		return err
+	}
+
+	feed, err := FetchFeed(context.Background(), next.Url)
+	if err != nil {
+		return err
+	}
+
+	db.MarkFeedFetched(context.Background(), next.ID)
+
+	for _, item := range feed.Channel.Item {
+		fmt.Println(item.Title)
+	}
+
+	return nil
 }

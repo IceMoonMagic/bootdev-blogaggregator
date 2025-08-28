@@ -1,1 +1,1 @@
-{"db_url":"postgres://roboticat:@localhost:5432/gator?sslmode=disable","current_user_name":"robo"}
+{"db_url":"postgres://user:@localhost:5432/gator?sslmode=disable","current_user_name":""}

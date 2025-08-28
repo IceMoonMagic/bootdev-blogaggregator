@@ -6,6 +6,11 @@
 - (2.3) time.Now not mentioned nor in spellbook?
 - (5.2) How to convert String to int? String to time (commented but not explained)?
 - (5.2) Why ignore the error instead of fixing it (e.g. INSERT ... ON CONFLICT DO NOTHING)?
+- (5.3) A little more on a good actual structure for the README could be nice.
+- (5.3) If go is only needed for build and install, why not mention making pre-compiled binaries
+  - People are way less likely to bother with something if they have to deal the dependacies like that
+  - and maybe a setup script postgres
+- (5.3) I feel like this should be done at the start. Then you could add docs for each command as it goes.
 
 SQL Defaults
 SQL trigger update updated_at?

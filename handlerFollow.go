@@ -18,7 +18,7 @@ func handlerFollow(state *state, cmd command, user database.User) error {
 		context.Background(),
 		database.CreateFeedFollowParams{
 			UserID: user.ID,
-			Url:  url,
+			Url:    url,
 		},
 	)
 	if err != nil {
@@ -44,4 +44,21 @@ func handlerFollowing(state *state, cmd command, user database.User) error {
 	}
 
 	return nil
+}
+
+func handlerUnfollow(state *state, cmd command, user database.User) error {
+	if err := checkCommandArgsCount(cmd, 1, 1); err != nil {
+		return nil
+	}
+
+	url := cmd.args[0]
+
+	err := state.db.DeleteFeedFollow(
+		context.Background(),
+		database.DeleteFeedFollowParams{
+			UserID: user.ID,
+			Url:    url,
+		},
+	)
+	return err
 }
